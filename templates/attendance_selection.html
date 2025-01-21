@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mx-auto mt-8 p-6 bg-gray-100 rounded-lg shadow-md">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">
+    Select Employee for Attendance
+  </h2>
+
+  <form method="POST" action="{{ url_for('attendance.employee_attendance') }}">
+    <label
+      for="employee_id"
+      class="block text-lg font-medium text-gray-700 mb-2"
+      >Employee:</label
+    >
+    <select
+      name="employee_id"
+      id="employee_id"
+      class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+    >
+      {% for employee in employees %}
+      <option value="{{ employee.id }}">{{ employee.name }}</option>
+      {% endfor %}
+    </select>
+
+    <button
+      type="submit"
+      class="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300"
+    >
+      View Attendance
+    </button>
+  </form>
+</div>
+{% endblock %}

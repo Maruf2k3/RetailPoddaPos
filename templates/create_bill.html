@@ -1,0 +1,511 @@
+{% extends "base.html" %} {% block content %}
+<style>
+  /* Responsive and toast notification styles */
+  @media screen and (max-width: 768px) {
+    #menu-items-container {
+      display: none;
+    }
+    #menuSearch {
+      width: 100%;
+    }
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 50;
+    background-color: #1d4ed8;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+    display: none;
+  }
+
+  .toast.show {
+    display: block;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+</style>
+
+<!-- Toast Notification -->
+<div id="customAlert" class="toast">
+  <h2 id="alertTitle" class="text-lg font-bold"></h2>
+  <p id="alertMessage" class="text-sm"></p>
+</div>
+
+<div class="container mx-auto mt-8 flex flex-wrap justify-center">
+  <!-- Menu Section (Left side) -->
+  <div class="w-full md:w-1/2 pr-4">
+    <h2 class="text-3xl font-bold mb-6 text-blue-700">Menu</h2>
+    <div class="flex mb-4">
+      <input
+        type="text"
+        id="menuSearch"
+        placeholder="Search Menu..."
+        class="w-full p-2 border rounded-md shadow-md mr-2"
+        oninput="filterMenuItems()"
+      />
+      <select
+        id="categoryFilter"
+        class="p-2 border rounded-md shadow-md"
+        onchange="filterMenuItems()"
+      >
+        <option value="">All Categories</option>
+        {% for item in menu_items|unique(attribute='category') %}
+        <option value="{{ item.category }}">{{ item.category }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Menu item container -->
+    <div
+      id="menu-items-container"
+      class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"
+    >
+      {% for item in menu_items %}
+      <button
+        class="menu-item bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+        data-category="{{ item.category }}"
+        onclick="addItem('{{ item.name }}', '{{ item.price }}')"
+      >
+        {{ item.name }}
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Bill Section (Right side) -->
+  <div class="w-full md:w-1/3 pl-4 mt-8 md:mt-0">
+    <h2 class="text-3xl font-bold mb-6 text-blue-700">Create Invoice</h2>
+    <form method="POST" id="billForm" onsubmit="submitBill(event)">
+      <!-- Bill Summary -->
+      <h3 class="text-2xl font-semibold mb-4 text-blue-500">Bill Summary</h3>
+      <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <table class="table-auto w-full border border-gray-200">
+          <thead class="bg-blue-500 text-white">
+            <tr>
+              <th class="px-4 py-2">Item</th>
+              <th class="px-4 py-2">Qty</th>
+              <th class="px-4 py-2">Price (Unit)</th>
+              <th class="px-4 py-2">Total</th>
+              <th class="px-4 py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody id="bill-items"></tbody>
+        </table>
+      </div>
+
+      <!-- Customer, Group, Note, and Server Section -->
+      <div class="mt-6 bg-gray-50 p-4 rounded-lg shadow-md">
+        <!-- Customer and Group Row -->
+        <div class="flex justify-between mb-4">
+          <div class="w-1/2 pr-2">
+            <label
+              for="customer"
+              class="block text-sm font-medium text-gray-700"
+              >Customer</label
+            >
+            <select
+              name="customer"
+              id="customer"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:ring-2 focus:ring-blue-400 p-2"
+            >
+              <option value="">None</option>
+              {% for customer in customers %}
+              <option value="{{ customer.id }}">{{ customer.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="w-1/2 pl-2">
+            <label for="group" class="block text-sm font-medium text-gray-700"
+              >Select Group</label
+            >
+            <select
+              name="group"
+              id="group"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:ring-2 focus:ring-blue-400 p-2"
+            >
+              <option value="">None</option>
+              {% for group in groups %}
+              <option value="{{ group.id }}">{{ group.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Server and Note Row -->
+        <div class="flex justify-between">
+          <div class="w-1/2 pr-2">
+            <label class="block text-sm font-medium text-gray-700"
+              >Server Name</label
+            >
+            <p id="server" class="mt-1 p-2 bg-gray-100 rounded-md">
+              {{ current_user.username }}
+            </p>
+          </div>
+          <div class="w-1/2 pl-2">
+            <label for="note" class="block text-sm font-medium text-gray-700"
+              >Note</label
+            >
+            <textarea
+              name="note"
+              id="note"
+              rows="2"
+              placeholder="Any additional notes..."
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:ring-2 focus:ring-blue-400 p-2 h-10 resize-none"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtotal, Discount, Tax, and Grand Total Section -->
+      <div class="mt-6 bg-gray-50 p-4 rounded-lg shadow-md">
+        <div class="flex justify-between items-center mb-4">
+          <div class="w-1/2 pr-2 flex items-center">
+            <label for="subtotal" class="text-sm font-medium text-gray-700 mr-2"
+              >Subtotal:</label
+            >
+            <p
+              id="subtotal"
+              class="p-2 bg-gray-100 rounded-md text-blue-500 font-bold w-full"
+            >
+              0.00
+            </p>
+          </div>
+          <div class="w-1/2 pl-2 flex items-center">
+            <label
+              for="grand-total"
+              class="text-sm font-medium text-gray-700 mr-2"
+              >Grand Total:</label
+            >
+            <p
+              id="grand-total"
+              class="p-2 bg-gray-100 rounded-md text-blue-500 font-bold w-full"
+            >
+              0.00
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-between items-center">
+          <div class="w-1/2 pr-2 flex items-center">
+            <label for="discount" class="text-sm font-medium text-gray-700 mr-2"
+              >Discount:</label
+            >
+            <input
+              name="discount"
+              type="number"
+              id="discount"
+              min="0"
+              value="0"
+              class="text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 p-2 w-full"
+            />
+          </div>
+          <div class="w-1/2 pl-2 flex items-center">
+            <label for="tax" class="text-sm font-medium text-gray-700 mr-2"
+              >Tax (%):</label
+            >
+            <input
+              name="tax"
+              type="number"
+              id="tax"
+              value="0"
+              placeholder="0%"
+              class="text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 p-2 w-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment, Paid Amount, and Change Section -->
+      <div
+        class="flex justify-between items-center mt-6 bg-gray-50 p-4 rounded-lg shadow-md gap-2"
+      >
+        <div class="w-1/3">
+          <label
+            for="payment-method"
+            class="block text-sm font-medium text-gray-700"
+            >Payment Method</label
+          >
+          <select
+            name="payment-method"
+            id="payment-method"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:ring-2 focus:ring-blue-400 p-2"
+          >
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+          </select>
+        </div>
+        <div class="w-1/3">
+          <label
+            for="paid-amount"
+            class="block text-sm font-medium text-gray-700"
+            >Paid Amount</label
+          >
+          <input
+            type="number"
+            id="paid-amount"
+            value="0"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-md focus:ring-2 focus:ring-blue-400 p-2"
+          />
+        </div>
+        <div class="w-1/3">
+          <label
+            for="change-due"
+            class="block text-sm font-medium text-gray-700"
+            >Change Due</label
+          >
+          <p class="text-lg font-bold text-blue-500 mt-1" id="change-due">
+            0.00
+          </p>
+        </div>
+      </div>
+
+      <!-- Buttons for Submit and Print -->
+      <div class="flex justify-around mt-6 mb-10">
+        <button
+          type="submit"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg"
+        >
+          Submit Bill
+        </button>
+        <button
+          type="button"
+          onclick="printBill()"
+          class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg"
+        >
+          Print
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- JavaScript for adding items, calculating totals, and form submission -->
+<script>
+  let billItems = [];
+
+  function filterMenuItems() {
+    const searchQuery = document
+      .getElementById("menuSearch")
+      .value.toLowerCase();
+    const selectedCategory = document.getElementById("categoryFilter").value;
+    const menuItems = document.getElementsByClassName("menu-item");
+
+    Array.from(menuItems).forEach((item) => {
+      const itemName = item.innerText.toLowerCase();
+      const itemCategory = item.getAttribute("data-category");
+      item.style.display =
+        itemName.includes(searchQuery) &&
+        (selectedCategory === "" || itemCategory === selectedCategory)
+          ? "block"
+          : "none";
+    });
+  }
+
+  function showAlert(title, message) {
+    const alertBox = document.getElementById("customAlert");
+    document.getElementById("alertTitle").innerText = title;
+    document.getElementById("alertMessage").innerText = message;
+    alertBox.classList.add("show");
+    setTimeout(() => alertBox.classList.remove("show"), 3000);
+  }
+
+  function addItem(name, price) {
+    const existingItem = billItems.find((item) => item.name === name);
+    existingItem
+      ? existingItem.qty++
+      : billItems.push({ name, qty: 1, price: parseFloat(price) });
+    renderBill();
+  }
+
+  function renderBill() {
+    const billTable = document.getElementById("bill-items");
+    let subtotal = 0;
+    billTable.innerHTML = billItems
+      .map((item) => {
+        const itemTotal = item.qty * item.price;
+        subtotal += itemTotal;
+        return `<tr class="odd:bg-gray-50 even:bg-gray-100">
+        <td class="border px-4 py-2 text-gray-700">${item.name}</td>
+        <td class="border px-4 py-2"><input type="number" value="${
+          item.qty
+        }" onchange="updateQuantity('${
+          item.name
+        }', this.value)" class="w-16 text-center border border-gray-300 rounded-md focus:ring-blue-400"></td>
+        <td class="border px-4 py-2 text-gray-700">${item.price.toFixed(2)}</td>
+        <td class="border px-4 py-2 text-gray-700">${itemTotal.toFixed(2)}</td>
+        <td class="border px-4 py-2"><button class="text-red-500 font-bold" onclick="removeItem('${
+          item.name
+        }')">X</button></td>
+      </tr>`;
+      })
+      .join("");
+    document.getElementById("subtotal").textContent = subtotal.toFixed(2);
+    calculateGrandTotal(subtotal);
+  }
+
+  function updateQuantity(name, qty) {
+    const item = billItems.find((item) => item.name === name);
+    if (item) item.qty = parseInt(qty);
+    renderBill();
+  }
+
+  function removeItem(name) {
+    billItems = billItems.filter((item) => item.name !== name);
+    renderBill();
+  }
+
+  function calculateGrandTotal(subtotal) {
+    const discount = parseFloat(document.getElementById("discount").value) || 0;
+    const tax = parseFloat(document.getElementById("tax").value) || 0;
+    const taxAmount = (tax / 100) * subtotal;
+    const grandTotal = subtotal + taxAmount - discount;
+    document.getElementById("grand-total").textContent = grandTotal.toFixed(2);
+    calculateChange();
+  }
+
+  document
+    .getElementById("discount")
+    .addEventListener("input", () =>
+      calculateGrandTotal(
+        parseFloat(document.getElementById("subtotal").textContent)
+      )
+    );
+  document
+    .getElementById("tax")
+    .addEventListener("input", () =>
+      calculateGrandTotal(
+        parseFloat(document.getElementById("subtotal").textContent)
+      )
+    );
+
+  function calculateChange() {
+    const grandTotal = parseFloat(
+      document.getElementById("grand-total").textContent
+    );
+    const paidAmount =
+      parseFloat(document.getElementById("paid-amount").value) || 0;
+    document.getElementById("change-due").textContent = (
+      paidAmount - grandTotal
+    ).toFixed(2);
+  }
+
+  document
+    .getElementById("paid-amount")
+    .addEventListener("input", calculateChange);
+
+  function submitBill(event) {
+    event.preventDefault();
+    const itemsData = JSON.stringify(billItems);
+    const formData = new FormData(document.getElementById("billForm"));
+    formData.append("items", itemsData);
+
+    fetch("/create-bill", {
+      method: "POST",
+      body: formData,
+    }).then((response) => {
+      showAlert(
+        response.ok ? "Success" : "Failed",
+        response.ok ? "Order Submitted Successfully!" : "Failed To Submit Order"
+      );
+      setTimeout(() => (window.location.href = "/create-bill"), 1000);
+    });
+  }
+
+  document.getElementById("customer").addEventListener("change", function () {
+    if (this.value !== "") {
+      document.getElementById("group").disabled = true;
+    } else {
+      document.getElementById("group").disabled = false;
+    }
+  });
+
+  document.getElementById("group").addEventListener("change", function () {
+    if (this.value !== "") {
+      document.getElementById("customer").disabled = true;
+    } else {
+      document.getElementById("customer").disabled = false;
+    }
+  });
+
+  function printBill() {
+    const serverName = document.getElementById("server").textContent.trim();
+    const taxInValue = parseInt(document.getElementById("tax").value);
+    const billContent = `
+      <div style="width: 80mm; font-family: Arial, sans-serif; font-size: 12px; text-align: center; padding: 10mm;">
+        <h1 style="font-size: 16px; margin-bottom: 5px;">Podda Restaurant LLC</h1>
+        <p style="margin: 0;">Nuamia 2 Shop 16</p>
+        <p style="margin: 0;">052######</p>
+        <hr style="border: 0.5px dashed #000; margin: 10px 0;">
+        <p style="margin: 0; text-align: left;"><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+        <p style="margin: 0; text-align: left;"><strong>Customer:</strong> ${
+          document.getElementById("customer").selectedOptions[0].text
+        }</p>
+        <p style="margin: 0; text-align: left;"><strong>Server:</strong> ${serverName}</p>
+        <hr style="border: 0.5px dashed #000; margin: 10px 0;">
+        <table style="width: 100%; text-align: left; margin-bottom: 10px; border-collapse: collapse;">
+          <thead style="border-bottom: 1px dashed #000;">
+            <tr>
+              <th style="border: 1px solid #000; padding: 5px; text-align: left;">Item</th>
+              <th style="border: 1px solid #000; padding: 5px; text-align: right;">Qty</th>
+              <th style="border: 1px solid #000; padding: 5px; text-align: right;">Price</th>
+              <th style="border: 1px solid #000; padding: 5px; text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${generateBillItemsHTML()}
+          </tbody>
+        </table>
+        <div style="text-align: right;">
+          <p style="margin: 2px 0;"><strong>Subtotal:</strong> ${parseInt(
+            document.getElementById("subtotal").innerText
+          )} AED</p>
+          <p style="margin: 2px 0;"><strong>Tax:</strong> ${
+            (taxInValue / 100) *
+            parseInt(document.getElementById("subtotal").innerText)
+          } AED</p>
+          <p style="margin: 2px 0;"><strong>Discount:</strong> ${parseInt(
+            document.getElementById("discount").value
+          )} AED</p>
+          <p style="font-weight: bold; margin: 2px 0;"><strong>Grand Total:</strong> ${parseInt(
+            document.getElementById("grand-total").innerText
+          )} AED</p>
+        </div>
+        <hr style="border: 0.5px dashed #000; margin: 10px 0;">
+        <p style="font-size: 10px; margin-top: 5px;">Thank you for dining with us!</p>
+      </div>`;
+    const originalContents = document.body.innerHTML;
+    document.body.innerHTML = billContent;
+    window.print();
+    document.body.innerHTML = originalContents;
+  }
+
+  function generateBillItemsHTML() {
+    return billItems
+      .map((item) => {
+        const itemTotal = item.qty * item.price;
+        return `
+        <tr>
+          <td style="border: 1px solid #000; padding: 5px; text-align: left;">${item.name}</td>
+          <td style="border: 1px solid #000; padding: 5px; text-align: right;">${item.qty}</td>
+          <td style="border: 1px solid #000; padding: 5px; text-align: right;">${item.price}</td>
+          <td style="border: 1px solid #000; padding: 5px; text-align: right;">${itemTotal}</td>
+        </tr>`;
+      })
+      .join("");
+  }
+</script>
+{% endblock %}

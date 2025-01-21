@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Podda Restaurant LLC{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/output.css') }}"
+    />
+    <!-- Font Awesome (if needed) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <!-- SweetAlert2 for flash messages -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+
+  <body class="bg-gray-300 h-full w-full m-0 p-0">
+    <!-- NAVBAR (100% background) -->
+    <nav class="bg-neutral-800 w-full shadow-md">
+      <div
+        class="max-w-screen-xl mx-auto px-4 py-4 flex justify-between items-center"
+      >
+        {% if current_user.is_authenticated %}
+        <a
+          href="{{ url_for('auth.dashboard') }}"
+          class="text-white font-bold text-lg"
+        >
+          Podda Restaurant LLC
+        </a>
+        {% else %}
+        <a href="/" class="text-white font-bold text-lg">
+          Podda Restaurant LLC
+        </a>
+        {% endif %}
+
+        <div>
+          {% if current_user.is_authenticated %}
+          <a
+            href="{{ url_for('auth.logout') }}"
+            class="text-white px-4 font-bold text-lg"
+          >
+            Logout
+          </a>
+          <a
+            href="{{ url_for('auth.dashboard') }}"
+            class="text-white px-4 font-bold text-lg"
+          >
+            Dashboard
+          </a>
+          {% else %}
+          <a
+            href="{{ url_for('auth.login') }}"
+            class="text-white px-4 font-bold text-lg"
+          >
+            Login
+          </a>
+          <a
+            href="{{ url_for('auth.register') }}"
+            class="text-white px-4 font-bold text-lg"
+          >
+            Register
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT (container or full width as needed) -->
+    <main class="w-full min-h-screen">
+      <!-- Flash messages (hidden until shown by SweetAlert) -->
+      {% with messages = get_flashed_messages(with_categories=True) %} {% if
+      messages %} {% for category, message in messages %}
+      <input
+        type="hidden"
+        class="flash-message"
+        data-category="{{ category }}"
+        data-message="{{ message }}"
+      />
+      {% endfor %} {% endif %} {% endwith %}
+
+      <!-- Child template content goes here -->
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- jsPDF (if needed) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    <!-- SweetAlert2 logic for flash messages -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const flashMessages = document.querySelectorAll(".flash-message");
+        flashMessages.forEach(function (msgElem) {
+          const category = msgElem.getAttribute("data-category");
+          const message = msgElem.getAttribute("data-message");
+          Swal.fire({
+            icon: category, // or 'success', 'error', etc.
+            title: message,
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

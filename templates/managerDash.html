@@ -1,0 +1,209 @@
+{% extends "base.html" %} {% block title %}Manager Dashboard{% endblock %} {%
+block content %}
+<div class="max-w-6xl mx-auto p-10 bg-gray-100 rounded-lg shadow-lg">
+  <!-- Welcome Section with Avatar -->
+  <div class="flex items-center mb-10 space-x-4">
+    <!-- Avatar Image with Updated API URL -->
+    <img
+      class="w-20 h-20 rounded-full shadow-lg bg-gray-300"
+      alt="User Avatar"
+      src="https://api.dicebear.com/9.x/pixel-art/svg?seed={{ name | urlencode }}"
+    />
+
+    <!-- Welcome Message -->
+    <div>
+      <h1 class="text-4xl font-bold text-gray-800">Welcome, {{ name }}</h1>
+      <p class="text-lg text-gray-600 mt-2">
+        You are logged in as
+        <span class="font-semibold text-indigo-600">{{ role }}</span>.
+      </p>
+    </div>
+  </div>
+
+  <!-- Management Section -->
+  <div class="mb-10">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Management</h2>
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
+      <!-- Menu Management Card -->
+      <a
+        href="{{ url_for('menu_management.menu_management') }}"
+        class="group flex flex-col items-center p-6 bg-green-500 text-white rounded-xl shadow-lg hover:bg-green-600 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-utensils text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Manage Menu</span>
+      </a>
+
+      <!-- Employee Dashboard Card -->
+      <a
+        href="{{ url_for('employees.employee_dashboard') }}"
+        class="group flex flex-col items-center p-6 bg-indigo-400 text-white rounded-xl shadow-lg hover:bg-indigo-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-user-tie text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Manage Employee</span>
+      </a>
+
+      <!-- Inventory Management Card -->
+      <a
+        href="{{ url_for('inventory.inventory_dashboard') }}"
+        class="group flex flex-col items-center p-6 bg-teal-400 text-white rounded-xl shadow-lg hover:bg-teal-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-warehouse text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Manage Inventory</span>
+      </a>
+
+      <!-- Add Purchase Card -->
+      <a
+        href="{{ url_for('purchases.add_purchase') }}"
+        class="group flex flex-col items-center p-6 bg-green-400 text-white rounded-xl shadow-lg hover:bg-green-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-cart-plus text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Manage Purchases</span>
+      </a>
+
+      <!-- CRM Card -->
+      <a
+        href="{{ url_for('crm.customer_management') }}"
+        class="group flex flex-col items-center p-6 bg-yellow-500 text-white rounded-xl shadow-lg hover:bg-yellow-600 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-address-book text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Manage CRM</span>
+      </a>
+
+      <!-- Groups Management Card -->
+      <a
+        href="{{ url_for('groups.group_management') }}"
+        class="group flex flex-col items-center p-6 bg-blue-400 text-white rounded-xl shadow-lg hover:bg-blue-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-user-friends text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Groups Management</span>
+      </a>
+
+      <!-- Order Management Card -->
+      <a
+        href="{{ url_for('ordermanagement.order_management') }}"
+        class="group flex flex-col items-center p-6 bg-blue-400 text-white rounded-xl shadow-lg hover:bg-blue-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-user-friends text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Order Management</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Billing Inventory Log Section -->
+  <div class="mb-10">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Billing</h2>
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
+      <!-- Create Bill Card -->
+      <a
+        href="{{ url_for('billing.create_bill') }}"
+        class="group flex flex-col items-center p-6 bg-teal-500 text-white rounded-xl shadow-lg hover:bg-teal-600 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-receipt text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Create Bill</span>
+      </a>
+      <!-- Inventory Log Usage Card -->
+      <a
+        href="{{ url_for('inventory.log_usage') }}"
+        class="group flex flex-col items-center p-6 bg-orange-400 text-white rounded-xl shadow-lg hover:bg-orange-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-boxes text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Inventory Log Usage</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Reports Section -->
+  <div class="mb-10">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Reports</h2>
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
+      <!-- All Sales Report Card -->
+      <a
+        href="{{ url_for('billing.all_sales_reports') }}"
+        class="group flex flex-col items-center p-6 bg-purple-400 text-white rounded-xl shadow-lg hover:bg-purple-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-file-invoice-dollar text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">All Sales Report</span>
+      </a>
+      <!-- Sales Report Card -->
+      <a
+        href="{{ url_for('billing.sales_reports') }}"
+        class="group flex flex-col items-center p-6 bg-purple-500 text-white rounded-xl shadow-lg hover:bg-purple-600 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-chart-line text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Sales Report</span>
+      </a>
+      <!-- Groups Sales Report Card -->
+      <a
+        href="{{ url_for('groups.group_sales_reports') }}"
+        class="group flex flex-col items-center p-6 bg-red-400 text-white rounded-xl shadow-lg hover:bg-red-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-chart-bar text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Groups Sales Report</span>
+      </a>
+      <!-- CRM Reports Card -->
+      <a
+        href="{{ url_for('crm.customer_history') }}"
+        class="group flex flex-col items-center p-6 bg-pink-500 text-white rounded-xl shadow-lg hover:bg-pink-600 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-history text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">CRM Reports</span>
+      </a>
+
+      <!-- Purchase History Report Card -->
+      <a
+        href="{{ url_for('purchases.purchase_history') }}"
+        class="group flex flex-col items-center p-6 bg-blue-500 text-white rounded-xl shadow-lg hover:bg-blue-600 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-history text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Purchase History</span>
+      </a>
+
+      <!-- Inventory Usage Report Card -->
+      <a
+        href="{{ url_for('inventory.view_usage_logs') }}"
+        class="group flex flex-col items-center p-6 bg-gray-500 text-white rounded-xl shadow-lg hover:bg-gray-600 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-box text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Inventory Usage Report</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

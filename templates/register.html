@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% block title %}Register{% endblock %} {% block
+content %}
+<div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+  <h2 class="text-2xl font-bold mb-6">Register</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-4">
+      <label for="username" class="block text-sm font-medium text-gray-700"
+        >Username</label
+      >
+      {{ form.username(class_="w-full px-4 py-2 border rounded-lg
+      focus:outline-none focus:ring-2 focus:ring-blue-500") }} {% if
+      form.username.errors %}
+      <div class="text-red-500">{{ form.username.errors[0] }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-4">
+      <label for="password" class="block text-sm font-medium text-gray-700"
+        >Password</label
+      >
+      {{ form.password(class_="w-full px-4 py-2 border rounded-lg
+      focus:outline-none focus:ring-2 focus:ring-blue-500") }} {% if
+      form.password.errors %}
+      <div class="text-red-500">{{ form.password.errors[0] }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-4">
+      <label
+        for="confirm_password"
+        class="block text-sm font-medium text-gray-700"
+        >Confirm Password</label
+      >
+      {{ form.confirm_password(class_="w-full px-4 py-2 border rounded-lg
+      focus:outline-none focus:ring-2 focus:ring-blue-500") }} {% if
+      form.confirm_password.errors %}
+      <div class="text-red-500">{{ form.confirm_password.errors[0] }}</div>
+      {% endif %}
+    </div>
+    <div class="mb-4">
+      <label for="role" class="block text-sm font-medium text-gray-700"
+        >Role</label
+      >
+      {{ form.role(class_="w-full px-4 py-2 border rounded-lg focus:outline-none
+      focus:ring-2 focus:ring-blue-500") }}
+    </div>
+    <button
+      type="submit"
+      class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg"
+    >
+      Register
+    </button>
+  </form>
+</div>
+{% endblock %}

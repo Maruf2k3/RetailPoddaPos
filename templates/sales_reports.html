@@ -1,0 +1,297 @@
+{% extends "base.html" %} {% block content %}
+<div class="min-h-screen bg-neutral-900 text-gray-100">
+  <!-- Main Content Container -->
+  <div class="container mx-auto px-6 py-8">
+    <!-- Page Title -->
+    <h2 class="text-4xl font-extrabold text-white mb-6">Sales Reports</h2>
+
+    <!-- Sales Report Date Range Form -->
+    <div class="bg-neutral-800 p-6 rounded-lg shadow-lg mb-8">
+      <form
+        method="POST"
+        action="{{ url_for('billing.sales_reports') }}"
+        class="space-y-6"
+      >
+        <!-- Start Date -->
+        <div>
+          <label
+            for="start_date"
+            class="block text-lg font-medium text-gray-300 mb-2"
+            >Start Date</label
+          >
+          <input
+            type="date"
+            name="start_date"
+            id="start_date"
+            required
+            class="w-full px-4 py-3 border border-gray-600 rounded-md bg-neutral-700 text-gray-200 focus:ring-2 focus:ring-red-600"
+          />
+        </div>
+
+        <!-- End Date -->
+        <div>
+          <label
+            for="end_date"
+            class="block text-lg font-medium text-gray-300 mb-2"
+            >End Date</label
+          >
+          <input
+            type="date"
+            name="end_date"
+            id="end_date"
+            required
+            class="w-full px-4 py-3 border border-gray-600 rounded-md bg-neutral-700 text-gray-200 focus:ring-2 focus:ring-red-600"
+          />
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end">
+          <button
+            type="submit"
+            class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md shadow-md transition duration-300"
+          >
+            Generate Sales Report
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Quick Sales Reports Section -->
+    <h3 class="text-2xl font-semibold text-white mb-4">Quick Reports</h3>
+    <div class="flex space-x-4 mb-8">
+      <button
+        class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-md shadow-md transition duration-300"
+        onclick="generatePredefinedReport('today')"
+      >
+        Today's Sales
+      </button>
+      <button
+        class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-md shadow-md transition duration-300"
+        onclick="generatePredefinedReport('month')"
+      >
+        This Month's Sales
+      </button>
+      <button
+        class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-md shadow-md transition duration-300"
+        onclick="generatePredefinedReport('year')"
+      >
+        This Year's Sales
+      </button>
+    </div>
+
+    <!-- Sales Table -->
+    {% if sales %}
+    <div class="overflow-x-auto bg-neutral-800 p-6 rounded-lg shadow-md">
+      <table
+        class="min-w-full bg-neutral-900 border border-neutral-700 rounded-lg"
+      >
+        <thead class="bg-neutral-800 text-gray-300">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-medium">Date</th>
+            <th class="px-6 py-3 text-left text-sm font-medium">Time</th>
+            <th class="px-6 py-3 text-left text-sm font-medium">Items</th>
+            <th class="px-6 py-3 text-left text-sm font-medium">Grand Total</th>
+            <th class="px-6 py-3 text-left text-sm font-medium">Customer</th>
+            <th class="px-6 py-3 text-left text-sm font-medium">Served By</th>
+            <th class="px-6 py-3 text-left text-sm font-medium">Notes</th>
+            <th class="px-6 py-3 text-left text-sm font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-200">
+          {% for sale in sales.items %}
+          <tr class="hover:bg-neutral-700 transition">
+            <td class="px-6 py-4">{{ sale.date }}</td>
+            <td class="px-6 py-4">{{ sale.time }}</td>
+            <td class="px-6 py-4">
+              {% set items = sale.items | fromjson %} {% for item in items %} {{
+              item['name'] }} (Qty: {{ item.get('qty', 1) }}), {% endfor %}
+            </td>
+            <td class="px-6 py-4">{{ sale.grand_total }}</td>
+            <td class="px-6 py-4">
+              {{ sale.customer.name if sale.customer else 'No Customer' }}
+            </td>
+            <td class="px-6 py-4">{{ sale.server }}</td>
+            <td class="px-6 py-4">{{ sale.notes }}</td>
+            <td class="px-6 py-4">
+              <div class="flex">
+                <button
+                  onclick="generateBillPDF('{{ sale.id }}')"
+                  class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 mx-2 rounded-md shadow-md"
+                >
+                  <i class="fa-solid fa-download"></i>
+                </button>
+                <form
+                  action="{{ url_for('billing.delete_sale', sale_id=sale.id) }}"
+                  method="POST"
+                  style="display: inline"
+                >
+                  <button
+                    type="submit"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md shadow-md"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Links -->
+    <div class="flex justify-center mt-6">
+      <nav class="inline-flex">
+        {% if sales.has_prev %}
+        <a
+          href="{{ url_for('billing.sales_reports', page=sales.prev_num, start_date=start_date, end_date=end_date) }}"
+          class="relative inline-flex items-center px-4 py-2 bg-neutral-800 text-sm font-medium text-gray-400 hover:bg-neutral-700"
+        >
+          <i class="fa fa-chevron-left"></i>
+        </a>
+        {% else %}
+        <span
+          class="relative inline-flex items-center px-4 py-2 bg-neutral-900 text-sm font-medium text-gray-600"
+        >
+          <i class="fa fa-chevron-left"></i>
+        </span>
+        {% endif %} {% for page_num in sales.iter_pages() %}
+        <a
+          href="{{ url_for('billing.sales_reports', page=page_num, start_date=start_date, end_date=end_date) }}"
+          class="relative inline-flex items-center px-4 py-2 {{ 'bg-red-600 text-white' if page_num == sales.page else 'bg-neutral-800 text-gray-400 hover:bg-neutral-700' }} text-sm font-medium"
+        >
+          {{ page_num }}
+        </a>
+        {% endfor %} {% if sales.has_next %}
+        <a
+          href="{{ url_for('billing.sales_reports', page=sales.next_num, start_date=start_date, end_date=end_date) }}"
+          class="relative inline-flex items-center px-4 py-2 bg-neutral-800 text-sm font-medium text-gray-400 hover:bg-neutral-700"
+        >
+          <i class="fa fa-chevron-right"></i>
+        </a>
+        {% else %}
+        <span
+          class="relative inline-flex items-center px-4 py-2 bg-neutral-900 text-sm font-medium text-gray-600"
+        >
+          <i class="fa fa-chevron-right"></i>
+        </span>
+        {% endif %}
+      </nav>
+    </div>
+
+    <!-- Download Button -->
+    <div class="mt-8 flex justify-center">
+      <a
+        href="{% if range_type %}
+                {{ url_for('billing.download_sales_report', start_date=start_date.strftime('%Y-%m-%d'), end_date=end_date.strftime('%Y-%m-%d'), page_only='false') }}
+              {% else %}
+                {{ url_for('billing.download_sales_report', start_date=start_date or '', end_date=end_date or '', page_only='false') }}
+              {% endif %}"
+        class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-md shadow-md transition duration-300"
+      >
+        Download Full Report
+      </a>
+    </div>
+    {% else %}
+    <p class="mt-6 p-6 bg-red-700 text-white font-bold rounded-md">
+      No sales found for the selected date range.
+    </p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function generatePredefinedReport(rangeType) {
+    window.location.href = "/sales-reports/predefined/" + rangeType;
+  }
+
+  async function generateBillPDF(saleId) {
+    const response = await fetch(`/get-sale/${saleId}`);
+    const sale = await response.json();
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+      unit: "mm",
+      format: [80, 297],
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const textCenterX = pageWidth / 2;
+    let y = 10;
+
+    doc.setFontSize(16);
+    doc.setTextColor(40, 40, 40);
+    doc.setFont("helvetica", "bold");
+    doc.text("Podda Restaurant LLC", textCenterX, y, { align: "center" });
+
+    y += 8;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Date: ${sale.date} ${sale.time}`, textCenterX, y, {
+      align: "center",
+    });
+
+    y += 10;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Customer: ${sale.customer}`, 10, y);
+    y += 5;
+    doc.text(`Server: ${sale.server}`, 10, y);
+
+    y += 10;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text("Item", 10, y);
+    doc.text("Qty", 40, y, { align: "right" });
+    doc.text("Price", 55, y, { align: "right" });
+    doc.text("Total", 70, y, { align: "right" });
+
+    y += 5;
+    doc.setFont("helvetica", "normal");
+    sale.items.forEach((item) => {
+      const itemNameLines = doc.splitTextToSize(item.name, 25);
+      doc.text(itemNameLines, 10, y);
+
+      doc.text(item.qty.toString(), 40, y, { align: "right" });
+      doc.text(item.price.toFixed(2), 55, y, { align: "right" });
+      doc.text((item.qty * item.price).toFixed(2), 70, y, { align: "right" });
+
+      y += itemNameLines.length * 5;
+    });
+
+    y += 10;
+    doc.setFont("helvetica", "bold");
+    doc.setDrawColor(0, 0, 0);
+    doc.line(10, y, 70, y);
+    y += 5;
+
+    doc.text(`Subtotal:`, 10, y);
+    doc.text(sale.subtotal.toFixed(2), 70, y, { align: "right" });
+
+    y += 5;
+    doc.text(`Tax:`, 10, y);
+    doc.text(sale.tax.toFixed(2), 70, y, { align: "right" });
+
+    y += 5;
+    doc.text(`Discount:`, 10, y);
+    doc.text(sale.discount.toFixed(2), 70, y, { align: "right" });
+
+    y += 5;
+    doc.setFontSize(14);
+    doc.setTextColor(255, 0, 0);
+    doc.text(`Grand Total:`, 10, y);
+    doc.text(sale.grand_total.toFixed(2), 70, y, { align: "right" });
+
+    y += 10;
+    doc.setTextColor(40, 40, 40);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("Thank you for dining with us!", textCenterX, y, {
+      align: "center",
+    });
+
+    doc.save(`bill_${sale.invoice_number}.pdf`);
+  }
+</script>
+{% endblock %}

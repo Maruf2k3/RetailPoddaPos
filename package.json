@@ -1,0 +1,20 @@
+{
+  "name": "retail-cosmo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch-css": "npx tailwindcss -i ./static/css/tailwind.css -o ./static/css/output.css --watch",
+    "start": "concurrently \"flask --app app.py run --host=0.0.0.0 --port=5000\" \"npm run watch-css\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.4.45",
+    "tailwindcss": "^3.4.14"
+  }
+}

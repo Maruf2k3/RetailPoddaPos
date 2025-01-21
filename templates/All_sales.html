@@ -1,0 +1,225 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container mx-auto p-6 bg-white rounded-lg shadow-md">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+    <i class="fas fa-chart-line text-blue-600 mr-3"></i> All Sales Reports
+  </h2>
+
+  <!-- Date Filter Options -->
+  <form
+    method="POST"
+    action="{{ url_for('billing.all_sales_reports') }}"
+    class="mb-6"
+  >
+    <div class="flex flex-wrap items-center space-x-4 mb-4">
+      <button
+        type="button"
+        class="predefined-btn px-4 py-2 bg-blue-500 text-white rounded-full font-semibold shadow-sm hover:bg-blue-600"
+        data-range="today"
+      >
+        Today
+      </button>
+      <button
+        type="button"
+        class="predefined-btn px-4 py-2 bg-blue-500 text-white rounded-full font-semibold shadow-sm hover:bg-blue-600"
+        data-range="month"
+      >
+        This Month
+      </button>
+      <button
+        type="button"
+        class="predefined-btn px-4 py-2 bg-blue-500 text-white rounded-full font-semibold shadow-sm hover:bg-blue-600"
+        data-range="year"
+      >
+        This Year
+      </button>
+    </div>
+
+    <div class="flex items-center space-x-4 mb-6">
+      <label for="start_date" class="text-gray-700 font-semibold"
+        >Start Date:</label
+      >
+      <input
+        type="date"
+        id="start_date"
+        name="start_date"
+        value="{{ start_date if start_date else '' }}"
+        class="border px-3 py-2 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200"
+      />
+
+      <label for="end_date" class="text-gray-700 font-semibold"
+        >End Date:</label
+      >
+      <input
+        type="date"
+        id="end_date"
+        name="end_date"
+        value="{{ end_date if end_date else '' }}"
+        class="border px-3 py-2 rounded-lg focus:border-blue-500 focus:ring focus:ring-blue-200"
+      />
+
+      <button
+        type="submit"
+        class="px-4 py-2 bg-green-500 text-white font-semibold rounded-full shadow-sm hover:bg-green-600"
+      >
+        Apply Date Filter
+      </button>
+    </div>
+    <input type="hidden" name="range_type" id="range_type" />
+  </form>
+
+  <!-- Download Button with Updated Form -->
+  <form
+    method="GET"
+    action="{{ url_for('billing.download_all_sales') }}"
+    id="download-form"
+    class="mb-6"
+  >
+    <input
+      type="hidden"
+      name="start_date"
+      id="download_start_date"
+      value="{{ start_date }}"
+    />
+    <input
+      type="hidden"
+      name="end_date"
+      id="download_end_date"
+      value="{{ end_date }}"
+    />
+    <input
+      type="hidden"
+      name="range_type"
+      id="download_range_type"
+      value="{{ range_type }}"
+    />
+    <button
+      type="submit"
+      class="w-full bg-teal-500 text-white font-semibold py-2 rounded-full shadow-sm hover:bg-teal-600"
+    >
+      <i class="fas fa-download mr-2"></i> Download All Sales Report
+    </button>
+  </form>
+
+  <!-- Sales Table -->
+  <div class="overflow-x-auto">
+    <table
+      class="w-full bg-gray-50 rounded-lg border border-gray-200 shadow-sm"
+    >
+      <thead class="bg-gray-100 text-gray-700">
+        <tr>
+          <th class="px-4 py-3 font-semibold uppercase text-left">Date</th>
+
+          <th class="px-4 py-3 font-semibold uppercase text-left">Customer</th>
+          <th class="px-4 py-3 font-semibold uppercase text-left">Items</th>
+
+          <th class="px-4 py-3 font-semibold uppercase text-left">
+            Grand Total
+          </th>
+
+          <th class="px-4 py-3 font-semibold uppercase text-left">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in sales.items %}
+        <tr class="border-b border-gray-200 hover:bg-gray-100">
+          <td class="px-4 py-2">{{ sale.date }}</td>
+
+          <td class="px-4 py-2 font-bold text-green-600">
+            {{ sale.customer.name if sale.customer else 'Walk In' }}
+          </td>
+          <td class="px-4 py-2">
+            {% set item_counts = {} %} {% for item in sale.items | fromjson %}
+            {% set item_name = item['name'] %} {% set quantity = item.get('qty',
+            1) %} {% if item_name in item_counts %} {% set item_counts =
+            item_counts.update({item_name: item_counts[item_name] + quantity})
+            %} {% else %} {% set item_counts = item_counts.update({item_name:
+            quantity}) %} {% endif %} {% endfor %} {% for name, qty in
+            item_counts.items() %} {{ name }} - {{ qty }}{% if not loop.last %},
+            {% endif %} {% endfor %}
+          </td>
+
+          <td class="px-4 py-2 font-bold text-green-600">
+            {{ sale.grand_total }}
+          </td>
+
+          <td class="px-4 py-2">{{ sale.notes }}</td>
+        </tr>
+        {% endfor %} {% for group_sale in group_sales.items %}
+        <tr class="border-b border-gray-200 hover:bg-gray-100">
+          <td class="px-4 py-2">{{ group_sale.date }}</td>
+
+          <td class="px-4 py-2 font-bold text-orange-600">
+            {{ group_sale.group.name }}
+          </td>
+          <td class="px-4 py-2">
+            {% set item_counts = {} %} {% for item in group_sale.items |
+            fromjson %} {% set item_name = item['name'] %} {% set quantity =
+            item.get('qty', 1) %} {% if item_name in item_counts %} {% set
+            item_counts = item_counts.update({item_name: item_counts[item_name]
+            + quantity}) %} {% else %} {% set item_counts =
+            item_counts.update({item_name: quantity}) %} {% endif %} {% endfor
+            %} {% for name, qty in item_counts.items() %} {{ name }} - {{ qty
+            }}{% if not loop.last %}, {% endif %} {% endfor %}
+          </td>
+
+          <td class="px-4 py-2 font-bold text-green-600">
+            {{ group_sale.grand_total }}
+          </td>
+
+          <td class="px-4 py-2">{{ group_sale.notes }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex justify-center items-center mt-6 space-x-4">
+    {% if sales.has_prev %}
+    <a
+      href="{{ url_for('billing.all_sales_reports', page=sales.prev_num) }}"
+      class="px-4 py-2 bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400"
+    >
+      Previous
+    </a>
+    {% endif %}
+    <span class="text-gray-600"
+      >Page {{ sales.page }} of {{ sales.pages }}</span
+    >
+    {% if sales.has_next %}
+    <a
+      href="{{ url_for('billing.all_sales_reports', page=sales.next_num) }}"
+      class="px-4 py-2 bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400"
+    >
+      Next
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll(".predefined-btn").forEach((button) => {
+    button.addEventListener("click", function () {
+      document.getElementById("range_type").value =
+        this.getAttribute("data-range");
+      document.getElementById("start_date").value = "";
+      document.getElementById("end_date").value = "";
+      this.closest("form").submit();
+    });
+  });
+
+  // JavaScript to keep download fields updated with date range
+  document
+    .getElementById("download-form")
+    .addEventListener("submit", function (e) {
+      document.getElementById("download_start_date").value =
+        document.getElementById("start_date").value;
+      document.getElementById("download_end_date").value =
+        document.getElementById("end_date").value;
+      document.getElementById("download_range_type").value =
+        document.getElementById("range_type").value;
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">
+    Log Daily Inventory Usage
+  </h1>
+
+  <form
+    method="POST"
+    action="{{ url_for('inventory.log_usage') }}"
+    id="usageForm"
+  >
+    <div id="ingredient-rows">
+      <!-- Template Row for Logging Multiple Items -->
+      <div class="ingredient-row flex space-x-4 mb-4">
+        <div class="w-1/4">
+          <label class="block text-lg font-medium text-gray-700"
+            >Select Item:</label
+          >
+          <select
+            name="item_id[]"
+            required
+            class="w-full px-4 py-3 border rounded-lg"
+          >
+            {% for item in inventory_items %}
+            <option value="{{ item.id }}">
+              {{ item.name }} (Available: {{ item.quantity }} {{ item.unit }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="w-1/4">
+          <label class="block text-lg font-medium text-gray-700"
+            >Quantity Used:</label
+          >
+          <input
+            type="number"
+            name="used_quantity[]"
+            step="any"
+            required
+            class="w-full px-4 py-3 border rounded-lg"
+          />
+        </div>
+        <div class="w-1/4">
+          <label class="block text-lg font-medium text-gray-700"
+            >Usage Date:</label
+          >
+          <input
+            type="date"
+            name="usage_date[]"
+            required
+            class="w-full px-4 py-3 border rounded-lg"
+            max="{{ current_date }}"
+          />
+        </div>
+        <div class="w-1/4">
+          <label class="block text-lg font-medium text-gray-700">Notes:</label>
+          <input
+            type="text"
+            name="notes[]"
+            class="w-full px-4 py-3 border rounded-lg"
+            placeholder="Optional notes"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Button to Add More Rows -->
+    <button
+      type="button"
+      class="bg-green-500 text-white font-bold py-3 px-6 rounded-lg mt-4"
+      onclick="addIngredientRow()"
+    >
+      Add Another Item
+    </button>
+
+    <!-- Submit Button -->
+    <button
+      type="submit"
+      class="bg-red-600 text-white font-bold py-3 px-6 rounded-lg mt-4"
+    >
+      Log Usage
+    </button>
+  </form>
+</div>
+
+<script>
+  function addIngredientRow() {
+    // Select the first row for cloning
+    const firstRow = document.querySelector(".ingredient-row");
+
+    // Clone the row
+    const newRow = firstRow.cloneNode(true);
+
+    // Clear values in cloned row
+    newRow
+      .querySelectorAll("input, select")
+      .forEach((input) => (input.value = ""));
+
+    // Append the cloned row
+    document.getElementById("ingredient-rows").appendChild(newRow);
+  }
+</script>
+{% endblock %}

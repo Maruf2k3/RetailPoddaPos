@@ -1,0 +1,73 @@
+{% extends "base.html" %} {% block title %}Staff Dashboard{% endblock %} {%
+block content %}
+<div class="max-w-6xl mx-auto p-10 bg-gray-100 rounded-lg shadow-lg">
+  <!-- Welcome Section with Avatar -->
+  <div class="flex items-center mb-10 space-x-4">
+    <!-- Avatar Image with Updated API URL -->
+    <img
+      class="w-20 h-20 rounded-full shadow-lg bg-gray-300"
+      alt="User Avatar"
+      src="https://api.dicebear.com/9.x/pixel-art/svg?seed={{ name | urlencode }}"
+    />
+
+    <!-- Welcome Message -->
+    <div>
+      <h1 class="text-4xl font-bold text-gray-800">Welcome, {{ name }}</h1>
+      <p class="text-lg text-gray-600 mt-2">
+        You are logged in as
+        <span class="font-semibold text-indigo-600">{{ role }}</span>.
+      </p>
+    </div>
+  </div>
+
+  <!-- Management Section -->
+  <div class="mb-10">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Management</h2>
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
+      <!-- Employee Dashboard Card -->
+      <a
+        href="{{ url_for('employees.employee_dashboard') }}"
+        class="group flex flex-col items-center p-6 bg-indigo-400 text-white rounded-xl shadow-lg hover:bg-indigo-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-user-tie text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Manage Employee</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Billing Section -->
+  <div class="mb-10">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Billing</h2>
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    >
+      <!-- Create Bill Card -->
+      <a
+        href="{{ url_for('billing.create_bill') }}"
+        class="group flex flex-col items-center p-6 bg-teal-500 text-white rounded-xl shadow-lg hover:bg-teal-600 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-receipt text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Create Bill</span>
+      </a>
+
+      <!-- Order Management Card -->
+      <a
+        href="{{ url_for('ordermanagement.order_management') }}"
+        class="group flex flex-col items-center p-6 bg-blue-400 text-white rounded-xl shadow-lg hover:bg-blue-500 transform hover:scale-105 transition duration-200"
+      >
+        <i
+          class="fa fa-user-friends text-4xl mb-3 group-hover:rotate-12 transition duration-300"
+        ></i>
+        <span class="text-lg font-semibold">Order Management</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

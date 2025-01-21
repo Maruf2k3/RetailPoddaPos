@@ -1,0 +1,11 @@
+node_modules/
+package-lock.json
+env/
+# Ignore Python bytecode and cache
+__pycache__/
+*.py[cod]
+migrations/
+pyFiles.txt
+ToTxtScript.py
+HtmlFIles.txt
+collected_files.txt

@@ -1,0 +1,188 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mx-auto mt-8 p-6 bg-gray-100 rounded-lg shadow-md">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">Employee Dashboard</h2>
+
+  <!-- Add Employee Button (Admin Only) -->
+  {% if current_user.role == 'admin' %}
+  <button
+    class="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md"
+    onclick="openEmployeeModal('add')"
+  >
+    Add New Employee
+  </button>
+  {% endif %}
+
+  <!-- Employees Table -->
+  <table class="table-auto w-full mt-6 bg-white rounded-lg shadow-lg">
+    <thead class="bg-gray-200">
+      <tr>
+        <th class="px-4 py-2 text-left font-medium text-gray-700">Name</th>
+        <th class="px-4 py-2 text-left font-medium text-gray-700">Position</th>
+        <th class="px-4 py-2 text-left font-medium text-gray-700">Contact</th>
+        <th class="px-4 py-2 text-left font-medium text-gray-700">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for employee in employees %}
+      <tr class="border-t">
+        <td class="px-4 py-3">{{ employee.name }}</td>
+        <td class="px-4 py-3">{{ employee.position }}</td>
+        <td class="px-4 py-3">{{ employee.contact_info }}</td>
+        <td class="px-4 py-3 space-x-2">
+          <!-- Clock-In/Clock-Out Buttons -->
+          {% if employee.clocked_in %}
+          <form
+            action="{{ url_for('attendance.clock_out', employee_id=employee.id) }}"
+            method="POST"
+            style="display: inline"
+          >
+            <button
+              type="submit"
+              class="bg-red-600 text-white px-2 py-1 rounded-md"
+            >
+              Clock-Out
+            </button>
+          </form>
+          {% else %}
+          <form
+            action="{{ url_for('attendance.clock_in', employee_id=employee.id) }}"
+            method="POST"
+            style="display: inline"
+          >
+            <button
+              type="submit"
+              class="bg-green-500 text-white px-2 py-1 rounded-md"
+            >
+              Clock-In
+            </button>
+          </form>
+          {% endif %}
+
+          <!-- Profile Button -->
+          <a
+            href="{{ url_for('attendance.employee_profile', employee_id=employee.id) }}"
+            class="bg-blue-500 text-white px-2 py-1 rounded-md"
+          >
+            Profile
+          </a>
+
+          <!-- Edit and Delete Buttons (Admin Only) -->
+          {% if current_user.role == 'admin' %}
+          <button
+            onclick="openEmployeeModal('edit', '{{ employee.id }}', '{{ employee.name }}', '{{ employee.position }}', '{{ employee.contact_info }}')"
+            class="bg-yellow-500 text-white px-2 py-1 rounded-md"
+          >
+            Edit
+          </button>
+
+          <form
+            action="{{ url_for('employees.delete_employee', employee_id=employee.id) }}"
+            method="POST"
+            style="display: inline"
+          >
+            <button
+              type="submit"
+              class="bg-red-600 text-white px-2 py-1 rounded-md"
+              onclick="return confirm('Are you sure you want to delete this employee?')"
+            >
+              Delete
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal for Add/Edit Employee -->
+<div
+  id="employeeModal"
+  class="modal hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+>
+  <div
+    class="bg-white w-full max-w-md mx-auto p-6 rounded-lg shadow-lg relative"
+  >
+    <h3 class="text-2xl font-semibold mb-4" id="modalTitle">
+      Add/Edit Employee
+    </h3>
+    <form method="POST" action="" id="employeeForm">
+      <input type="hidden" name="action" id="actionType" value="add" />
+      <input type="hidden" name="employee_id" id="employeeId" value="" />
+
+      <label for="name" class="block font-medium text-gray-700">Name:</label>
+      <input
+        type="text"
+        name="name"
+        id="employeeName"
+        required
+        class="block w-full p-2 border border-gray-300 rounded mb-4"
+      />
+
+      <label for="position" class="block font-medium text-gray-700"
+        >Position:</label
+      >
+      <input
+        type="text"
+        name="position"
+        id="employeePosition"
+        required
+        class="block w-full p-2 border border-gray-300 rounded mb-4"
+      />
+
+      <label for="contact_info" class="block font-medium text-gray-700"
+        >Contact Info:</label
+      >
+      <input
+        type="text"
+        name="contact_info"
+        id="employeeContact"
+        required
+        class="block w-full p-2 border border-gray-300 rounded mb-4"
+      />
+
+      <div class="flex justify-end space-x-2">
+        <button
+          type="button"
+          onclick="closeEmployeeModal()"
+          class="bg-gray-500 text-white px-4 py-2 rounded-md"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-4 py-2 rounded-md"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openEmployeeModal(
+    action,
+    id = "",
+    name = "",
+    position = "",
+    contact = ""
+  ) {
+    document.getElementById("actionType").value = action;
+    document.getElementById("employeeId").value = id;
+    document.getElementById("employeeName").value = name;
+    document.getElementById("employeePosition").value = position;
+    document.getElementById("employeeContact").value = contact;
+
+    const modal = document.getElementById("employeeModal");
+    modal.classList.remove("hidden"); // Show modal
+    modal.querySelector("#modalTitle").textContent =
+      action === "add" ? "Add Employee" : "Edit Employee";
+  }
+
+  function closeEmployeeModal() {
+    document.getElementById("employeeModal").classList.add("hidden"); // Hide modal
+  }
+</script>
+{% endblock %}
