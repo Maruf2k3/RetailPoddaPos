@@ -8,71 +8,39 @@
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <!-- Sort Toggle -->
       <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-        <span class="font-medium text-sm">Sort By Table Number:</span>
+        <span class="font-bold text-lg">Sort By Table Number:</span>
         {% if sort == 'asc' %}
-          <a
-            href="{{ url_for('ordermanagement.order_management', sort='desc') }}"
-            class="inline-flex items-center bg-red-600 hover:bg-red-700
+        <a href="{{ url_for('ordermanagement.order_management', sort='desc') }}" class="inline-flex items-center bg-red-600 hover:bg-red-700
                    text-white font-medium px-4 py-2 rounded-md transition-colors
-                   text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
-          >
-            <svg
-              class="w-4 h-4 mr-1"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 9l-7 7-7-7" />
-            </svg>
-            Descending
-          </a>
+                   text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600">
+          <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+          Descending
+        </a>
         {% else %}
-          <a
-            href="{{ url_for('ordermanagement.order_management', sort='asc') }}"
-            class="inline-flex items-center bg-red-600 hover:bg-red-700
+        <a href="{{ url_for('ordermanagement.order_management', sort='asc') }}" class="inline-flex items-center bg-red-600 hover:bg-red-700
                    text-white font-medium px-4 py-2 rounded-md transition-colors
-                   text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
-          >
-            <svg
-              class="w-4 h-4 mr-1"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M5 15l7-7 7 7" />
-            </svg>
-            Ascending
-          </a>
+                   text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600">
+          <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
+          Ascending
+        </a>
         {% endif %}
       </div>
 
       <!-- Create Order Button (if user can create) -->
       {% if current_user.role in ['admin', 'manager', 'staff'] %}
       <div>
-        <button
-          onclick="openOrderModal('create')"
-          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2
+        <button onclick="openOrderModal('create')" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2
                  rounded-md font-medium transition-colors shadow-md text-sm
                  flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2
-                 focus:ring-red-600"
-        >
-          <svg
-            class="w-4 h-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
+                 focus:ring-red-600">
+          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
           Create New Order
         </button>
@@ -88,518 +56,321 @@
       <h2 class="text-xl sm:text-2xl font-semibold mb-4">Active Orders</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for order in orders %}
-          {% if order.status != 'Paid' %}
-            {% set remaining = order.grand_total - order.amount_paid %}
-            <div
-              class="relative p-4 rounded-lg shadow-sm bg-neutral-800
+        {% if order.status != 'Paid' %}
+        {% set remaining = order.grand_total - order.amount_paid %}
+        <div class="relative p-4 rounded-lg shadow-sm bg-neutral-800
                      border-l-4 flex flex-col gap-3 hover:shadow-lg transition-shadow"
-              data-server-name="{{ order.created_by }}"
-              {% if order.status == 'Partially Paid' %}
-                style="border-color: #FACC15;"  <!-- Amber-400 border -->
-              {% else %}
-                style="border-color: #F87171;"  <!-- Red-400 for unpaid -->
+          data-server-name="{{ order.created_by }}" {% if order.status=='Partially Paid' %}
+          style="border-color: #FACC15;" <!-- Amber-400 border -->
+          {% else %}
+          style="border-color: #F87171;" <!-- Red-400 for unpaid -->
+          {% endif %}
+          >
+          <!-- Top Row: Table & Status Badge -->
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <!-- Table Icon -->
+              <svg class="w-5 h-5 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 7h10M7 11h10M7 15h10M9 5v14M15 5v14" />
+              </svg>
+              <h3 class="text-base font-bold text-white">
+                Table: {{ order.table_number }}
+              </h3>
+            </div>
+            <!-- Status Pill -->
+            {% if order.status == 'Partially Paid' %}
+            <span class="px-2 py-1 text-xs font-semibold
+                           rounded-full bg-amber-200 text-amber-800">
+              {{ order.status }}
+            </span>
+            {% else %}
+            <span class="px-2 py-1 text-xs font-semibold
+                           rounded-full bg-red-200 text-red-800">
+              {{ order.status }}
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Replace just that relevant section -->
+          <div class="grid grid-cols-2 items-start gap-4 text-sm">
+            <!-- Notes -->
+            <div class="text-gray-200 leading-tight">
+              {% if order.notes %}
+              <span class="font-medium not-italic text-gray-300">
+                Notes:
+              </span>
+              {{ order.notes }}
               {% endif %}
-            >
-              <!-- Top Row: Table & Status Badge -->
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                  <!-- Table Icon -->
-                  <svg
-                    class="w-5 h-5 text-gray-300"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 7h10M7 11h10M7 15h10M9 5v14M15 5v14"
-                    />
-                  </svg>
-                  <h3 class="text-base font-bold text-white">
-                    Table: {{ order.table_number }}
-                  </h3>
-                </div>
-                <!-- Status Pill -->
-                {% if order.status == 'Partially Paid' %}
-                  <span
-                    class="px-2 py-1 text-xs font-semibold
-                           rounded-full bg-amber-200 text-amber-800"
-                  >
-                    {{ order.status }}
-                  </span>
-                {% else %}
-                  <span
-                    class="px-2 py-1 text-xs font-semibold
-                           rounded-full bg-red-200 text-red-800"
-                  >
-                    {{ order.status }}
-                  </span>
-                {% endif %}
+            </div>
+
+            <!-- Amount Paid & Remaining -->
+            <div class="flex flex-col items-end text-right gap-5">
+              <div>
+                <span class="font-medium text-gray-400">Paid:</span>
+                <span class="bg-emerald-600 text-white px-2 py-1 rounded">
+                  {{ order.amount_paid }} AED
+                </span>
               </div>
-
-              <!-- Replace just that relevant section -->
-<div class="grid grid-cols-2 items-start gap-4 text-sm">
-  <!-- Notes -->
-  <div class="text-gray-200 leading-tight">
-    {% if order.notes %}
-      <span class="font-medium not-italic text-gray-300">
-        Notes:
-      </span>
-      {{ order.notes }}
-    {% endif %}
-  </div>
-
-  <!-- Amount Paid & Remaining -->
-  <div class="flex flex-col items-end text-right gap-5">
-    <div>
-      <span class="font-medium text-gray-400">Paid:</span>
-      <span class="bg-emerald-600 text-white px-2 py-1 rounded">
-        {{ order.amount_paid }} AED
-      </span>
-    </div>
-    {% if remaining > 0 %}
-      <div>
-        <span class="font-medium text-gray-400">Remaining:</span>
-        <span class="bg-red-600 text-white px-2 py-1 rounded">
-          {{ remaining }} AED
-        </span>
-      </div>
-    {% endif %}
-  </div>
-</div>
+              {% if remaining > 0 %}
+              <div>
+                <span class="font-medium text-gray-400">Remaining:</span>
+                <span class="bg-red-600 text-white px-2 py-1 rounded">
+                  {{ remaining }} AED
+                </span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
 
 
-              <!-- Creator & Creation Time -->
-              <div class="flex flex-wrap justify-between items-center text-xs gap-2">
-                <!-- Creator Chip -->
-                <div
-                  class="inline-flex items-center gap-1 px-2 py-1
-                         font-semibold rounded-full bg-blue-100 text-blue-800"
-                >
-                  <svg
-                    class="w-3 h-3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5.121 17.804A13.937 13.937
+          <!-- Creator & Creation Time -->
+          <div class="flex flex-wrap justify-between items-center text-xs gap-2">
+            <!-- Creator Chip -->
+            <div class="inline-flex items-center gap-1 px-2 py-1
+                         font-semibold rounded-full bg-blue-100 text-blue-800">
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937
                          0 0112 15c3.866 0 7.372 1.582
                          9.879 4.147M15 11a3 3 0
-                         11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  {{ order.created_by }}
-                </div>
-                <!-- Created-at Chip -->
-                <div
-                  class="inline-flex items-center gap-1 px-2 py-1
-                         font-semibold rounded-full bg-gray-200 text-gray-700"
-                >
-                  <svg
-                    class="w-3 h-3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8v4l3 3m6 5a9
+                         11-6 0 3 3 0 016 0z" />
+              </svg>
+              {{ order.created_by }}
+            </div>
+            <!-- Created-at Chip -->
+            <div class="inline-flex items-center gap-1 px-2 py-1
+                         font-semibold rounded-full bg-gray-200 text-gray-700">
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6 5a9
                          9 0 11-18 0 9 9 0
-                         0118 0z"
-                    />
-                  </svg>
-                  {{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
-                </div>
-              </div>
+                         0118 0z" />
+              </svg>
+              {{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+            </div>
+          </div>
 
-              <!-- Grand Total -->
-              <div>
-                <p class="font-semibold text-sm mt-1 text-gray-200">
-                  Grand Total:
-                  <span class="text-white">{{ order.grand_total }} AED</span>
-                </p>
-              </div>
+          <!-- Grand Total -->
+          <div>
+            <p class="font-semibold text-sm mt-1 text-gray-200">
+              Grand Total:
+              <span class="text-white">{{ order.grand_total }} AED</span>
+            </p>
+          </div>
 
-              <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-2 mt-3 justify-between">
-                <!-- Edit Button -->
-                <button
-                  onclick="openOrderModal('edit', '{{ order.id }}')"
-                  class="inline-flex items-center gap-1 bg-blue-500 hover:bg-blue-600
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-2 mt-3 justify-between">
+            <!-- Edit Button -->
+            <button onclick="openOrderModal('edit', '{{ order.id }}')" class="inline-flex items-center gap-1 bg-blue-500 hover:bg-blue-600
                          text-white px-3 py-2 rounded-md text-xs transition-colors
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <svg
-                    class="w-3 h-3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2
+                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2
                          2v10a2 2 0 002 2h10a2 2
-                         0 002-2v-5"
-                    />
-                  </svg>
-                  Edit
-                </button>
+                         0 002-2v-5" />
+              </svg>
+              Edit
+            </button>
 
-                {% if current_user.role in ['admin', 'manager'] %}
-                  <!-- Toggle Paid/Unpaid -->
-                  <button
-                    onclick="settleOrder('{{ order.id }}')"
-                    class="inline-flex items-center gap-1 bg-green-500 hover:bg-green-600
+            {% if current_user.role in ['admin', 'manager'] %}
+            <!-- Toggle Paid/Unpaid -->
+            <button onclick="settleOrder('{{ order.id }}')" class="inline-flex items-center gap-1 bg-green-500 hover:bg-green-600
                            text-white px-3 py-2 rounded-md text-xs transition-colors
-                           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    <svg
-                      class="w-3 h-3"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    Toggle Paid
-                  </button>
-                {% endif %}
+                           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Toggle Paid
+            </button>
+            {% endif %}
 
-                <!-- Partial Payment (disabled if remaining == 0) -->
-                <button
-                  onclick="openPaymentModal('{{ order.id }}', '{{ remaining }}')"
-                  class="inline-flex items-center gap-1 bg-indigo-500 hover:bg-indigo-600
+            <!-- Partial Payment (disabled if remaining == 0) -->
+            <button onclick="openPaymentModal('{{ order.id }}', '{{ remaining }}')" class="inline-flex items-center gap-1 bg-indigo-500 hover:bg-indigo-600
                          text-white px-3 py-2 rounded-md text-xs transition-colors
                          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-                         {% if remaining <= 0 %} opacity-50 cursor-not-allowed {% endif %}"
-                  {% if remaining <= 0 %} disabled {% endif %}
-                >
-                  <svg
-                    class="w-3 h-3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8c-1.1 0-2-.9-2-2s.9-2
+                         {% if remaining <= 0 %} opacity-50 cursor-not-allowed {% endif %}" {% if remaining <=0 %}
+              disabled {% endif %}>
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.1 0-2-.9-2-2s.9-2
                          2-2 2 .9 2 2-.9 2-2
                          2zm0 4c1.1 0 2 .9 2 2s-.9 2-2
                          2-2-.9-2-2 .9-2 2-2zm0 8c1.1
                          0 2 .9 2 2s-.9 2-2 2-2-.9-2-2
-                         .9-2 2-2z"
-                    />
-                  </svg>
-                  Pay
-                </button>
+                         .9-2 2-2z" />
+              </svg>
+              Pay
+            </button>
 
-                <!-- Delete (Disabled) -->
-                <button
-                  class="inline-flex items-center gap-1 bg-gray-600 text-white
-                         px-3 py-2 rounded-md text-xs cursor-not-allowed"
-                  disabled
-                >
-                  <svg
-                    class="w-3 h-3"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 7l-.867 12.142A2
+            <!-- Delete (Disabled) -->
+            <button class="inline-flex items-center gap-1 bg-gray-600 text-white
+                         px-3 py-2 rounded-md text-xs cursor-not-allowed" disabled>
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2
                          2 0 0116.138 21H7.862a2 2
                          0 01-1.995-1.858L5 7m5
                          4v6m4-6v6m1-10V5a2 2
                          0 00-2-2H9a2 2 0 00-2
-                         2v2m3 0h4"
-                    />
-                  </svg>
-                  Delete
-                </button>
-              </div>
-            </div>
-          {% endif %}
+                         2v2m3 0h4" />
+              </svg>
+              Delete
+            </button>
+          </div>
+        </div>
+        {% endif %}
         {% endfor %}
       </div>
     </section>
 
     <!-- COMPLETED ORDERS SECTION -->
     <section class="mt-10">
-      <h2
-        class="text-xl sm:text-2xl font-semibold mb-4 cursor-pointer flex items-center"
-        onclick="togglePaidOrders()"
-      >
+      <h2 class="text-xl sm:text-2xl font-semibold mb-4 cursor-pointer flex items-center" onclick="togglePaidOrders()">
         Completed Orders
-        <svg
-          id="paidOrdersIcon"
-          class="w-6 h-6 ml-2 transition-transform text-gray-400"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          />
+        <svg id="paidOrdersIcon" class="w-6 h-6 ml-2 transition-transform text-gray-400"
+          xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </h2>
       <div id="paidOrdersSection" class="hidden">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {% for order in orders %}
-            {% if order.status == 'Paid' %}
-              <div
-                class="p-4 rounded-lg shadow-sm bg-neutral-800 border-l-4 border-emerald-600
+          {% if order.status == 'Paid' %}
+          <div class="p-4 rounded-lg shadow-sm bg-neutral-800 border-l-4 border-emerald-600
                        flex flex-col gap-3 hover:shadow-lg transition-shadow"
-                data-server-name="{{ order.created_by }}"
-              >
-                <!-- Top Row: Table & Paid Status -->
-                <div class="flex justify-between items-center">
-                  <div class="flex items-center gap-2">
-                    <svg
-                      class="w-5 h-5 text-gray-300"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M7 7h10M7 11h10M7 15h10M9 5v14M15 5v14"
-                      />
-                    </svg>
-                    <h3 class="text-base font-bold text-white">
-                      Table: {{ order.table_number }}
-                    </h3>
-                  </div>
-                  <span
-                    class="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-200 text-emerald-800"
-                  >
-                    {{ order.status }} ✔
-                  </span>
-                </div>
+            data-server-name="{{ order.created_by }}">
+            <!-- Top Row: Table & Paid Status -->
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 7h10M7 11h10M7 15h10M9 5v14M15 5v14" />
+                </svg>
+                <h3 class="text-base font-bold text-white">
+                  Table: {{ order.table_number }}
+                </h3>
+              </div>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-200 text-emerald-800">
+                {{ order.status }} ✔
+              </span>
+            </div>
 
-                {% if order.notes %}
-                  <p class="text-sm text-gray-200 italic">
-                    <span class="font-medium not-italic text-gray-300">Notes:</span>
-                    {{ order.notes }}
-                  </p>
-                {% endif %}
+            {% if order.notes %}
+            <p class="text-sm text-gray-200 italic">
+              <span class="font-medium not-italic text-gray-300">Notes:</span>
+              {{ order.notes }}
+            </p>
+            {% endif %}
 
-                <!-- Creator & Creation Time -->
-                <div class="flex flex-wrap justify-between items-center text-xs gap-2">
-                  <div
-                    class="inline-flex items-center gap-1 px-2 py-1
-                           font-semibold rounded-full bg-blue-100 text-blue-800"
-                  >
-                    <svg
-                      class="w-3 h-3"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5.121 17.804A13.937 13.937
+            <!-- Creator & Creation Time -->
+            <div class="flex flex-wrap justify-between items-center text-xs gap-2">
+              <div class="inline-flex items-center gap-1 px-2 py-1
+                           font-semibold rounded-full bg-blue-100 text-blue-800">
+                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937
                            0 0112 15c3.866 0 7.372 1.582
                            9.879 4.147M15 11a3 3 0
-                           11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    {{ order.created_by }}
-                  </div>
-                  <div
-                    class="inline-flex items-center gap-1 px-2 py-1
-                           font-semibold rounded-full bg-gray-200 text-gray-700"
-                  >
-                    <svg
-                      class="w-3 h-3"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 8v4l3 3m6 5a9
+                           11-6 0 3 3 0 016 0z" />
+                </svg>
+                {{ order.created_by }}
+              </div>
+              <div class="inline-flex items-center gap-1 px-2 py-1
+                           font-semibold rounded-full bg-gray-200 text-gray-700">
+                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6 5a9
                            9 0 11-18 0 9 9 0
-                           0118 0z"
-                      />
-                    </svg>
-                    {{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
-                  </div>
-                </div>
+                           0118 0z" />
+                </svg>
+                {{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+              </div>
+            </div>
 
-                <p class="font-semibold text-sm text-gray-200">
-                  Grand Total: <span class="text-white">{{ order.grand_total }} AED</span>
-                </p>
-                <p class="text-sm text-gray-200">
-                  Amount Paid: {{ order.amount_paid }} AED
-                </p>
+            <p class="font-semibold text-sm text-gray-200">
+              Grand Total: <span class="text-white">{{ order.grand_total }} AED</span>
+            </p>
+            <p class="text-sm text-gray-200">
+              Amount Paid: {{ order.amount_paid }} AED
+            </p>
 
-                <!-- Action Buttons -->
-                <div class="flex flex-wrap gap-2 mt-3">
-                  <!-- Edit Button (Disabled) -->
-                  <button
-                    class="inline-flex items-center gap-1 bg-gray-600 text-white
-                           px-3 py-2 rounded-md text-xs cursor-not-allowed"
-                    disabled
-                  >
-                    <svg
-                      class="w-3 h-3"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M11 5H6a2 2 0
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-2 mt-3">
+              <!-- Edit Button (Disabled) -->
+              <button class="inline-flex items-center gap-1 bg-gray-600 text-white
+                           px-3 py-2 rounded-md text-xs cursor-not-allowed" disabled>
+                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0
                            00-2 2v10a2 2 0
                            002 2h10a2 2 0
-                           002-2v-5"
-                      />
-                    </svg>
-                    Edit
-                  </button>
+                           002-2v-5" />
+                </svg>
+                Edit
+              </button>
 
-                  {% if current_user.role in ['admin', 'manager'] %}
-                    <!-- Toggle Paid/Unpaid -->
-                    <button
-                      onclick="settleOrder('{{ order.id }}')"
-                      class="inline-flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600
+              {% if current_user.role in ['admin', 'manager'] %}
+              <!-- Toggle Paid/Unpaid -->
+              <button onclick="settleOrder('{{ order.id }}')" class="inline-flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600
                              text-white px-3 py-2 rounded-md text-xs transition-colors
-                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
-                    >
-                      <svg
-                        class="w-3 h-3"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      Toggle Paid
-                    </button>
+                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">
+                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Toggle Paid
+              </button>
 
-                    <!-- Delete Button -->
-                    <button
-                      onclick="deleteOrder('{{ order.id }}')"
-                      class="inline-flex items-center gap-1 bg-red-600 hover:bg-red-700
+              <!-- Delete Button -->
+              <button onclick="deleteOrder('{{ order.id }}')" class="inline-flex items-center gap-1 bg-red-600 hover:bg-red-700
                              text-white px-3 py-2 rounded-md text-xs transition-colors
-                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      <svg
-                        class="w-3 h-3"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M19 7l-.867 12.142A2
+                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2
                              2 0 0116.138 21H7.862a2 2
                              0 01-1.995-1.858L5 7m5
                              4v6m4-6v6m1-10V5a2 2
                              0 00-2-2H9a2 2 0 00-2
-                             2v2m3 0h4"
-                        />
-                      </svg>
-                      Delete
-                    </button>
-                  {% endif %}
-                  <!-- ADD YOUR PRINT BUTTON HERE -->
+                             2v2m3 0h4" />
+                </svg>
+                Delete
+              </button>
+              {% endif %}
+              <!-- ADD YOUR PRINT BUTTON HERE -->
               {% if order.sale_id %}
-              <button
-                onclick="printBill('{{ order.sale_id }}')"
-                class="inline-flex items-center gap-1 bg-indigo-500 hover:bg-indigo-600
+              <button onclick="printBill('{{ order.sale_id }}')" class="inline-flex items-center gap-1 bg-indigo-500 hover:bg-indigo-600
                        text-white px-3 py-2 rounded-md text-xs transition-colors
-                       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                <svg
-                  class="w-3 h-3"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 7l.867 12.142A2
+                       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l.867 12.142A2
                        2 0 0116.138 21H7.862a2 2
                        0 01-1.995-1.858L5 7m5
                        4v6m4-6v6m1-10V5a2 2
                        0 00-2-2H9a2 2 0 00-2
-                       2v2m3 0h4"
-                  />
+                       2v2m3 0h4" />
                 </svg>
                 Print Bill
               </button>
               {% endif %}
-                </div>
-              </div>
-            {% endif %}
+            </div>
+          </div>
+          {% endif %}
           {% endfor %}
         </div>
 
         <!-- Clear All Orders Button (Paid only) -->
         {% if current_user.role == 'admin' %}
         <div class="mt-6">
-          <button
-            onclick="clearAllOrders()"
-            class="bg-red-700 hover:bg-red-800 text-white px-6 py-2 rounded-md
+          <button onclick="clearAllOrders()" class="bg-red-700 hover:bg-red-800 text-white px-6 py-2 rounded-md
                    transition-colors text-sm font-medium focus:outline-none
-                   focus:ring-2 focus:ring-offset-2 focus:ring-red-700"
-          >
+                   focus:ring-2 focus:ring-offset-2 focus:ring-red-700">
             Clear All Orders
           </button>
         </div>
@@ -610,68 +381,44 @@
 </div>
 
 <!-- Modal for Create/Edit Order -->
-<div
-  id="orderModal"
-  class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center
-         items-center z-50 transition-opacity"
->
-  <div
-    class="bg-neutral-800 text-gray-100 p-6 rounded shadow-lg w-full max-w-6xl max-h-[90vh]
-           overflow-y-auto flex flex-col md:flex-row gap-6 animate-fadeIn"
-  >
+<div id="orderModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center
+         items-center z-50 transition-opacity">
+  <div class="bg-neutral-800 text-gray-100 p-6 rounded shadow-lg w-full max-w-6xl max-h-[90vh]
+           overflow-y-auto flex flex-col md:flex-row gap-6 animate-fadeIn">
     <!-- Left Side: Menu Items -->
     <div class="w-full md:w-1/2">
       <h2 class="text-lg font-bold mb-4">Menu</h2>
       <div class="flex items-center mb-4 gap-2">
-        <input
-          type="text"
-          id="menuSearch"
-          placeholder="Search Menu..."
-          class="w-full p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
-          oninput="filterMenuItems()"
-        />
-        <select
-          id="categoryFilter"
-          class="p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
-          onchange="filterMenuItems()"
-        >
+        <input type="text" id="menuSearch" placeholder="Search Menu..."
+          class="w-full p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200" oninput="filterMenuItems()" />
+        <select id="categoryFilter" class="p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
+          onchange="filterMenuItems()">
           <option value="">All</option>
           {% for category in unique_categories %}
           <option value="{{ category }}">{{ category }}</option>
           {% endfor %}
         </select>
       </div>
-      <div
-        id="menuItemsContainer"
-        class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4
-               overflow-y-auto max-h-96"
-      >
+      <div id="menuItemsContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4
+               overflow-y-auto max-h-96">
         {% for item in menu_items %}
-        <div
-          class="p-3 border border-gray-600 rounded bg-neutral-700 shadow text-center
+        <div class="p-3 border border-gray-600 rounded bg-neutral-700 shadow text-center
                  hover:bg-neutral-600 transition-colors flex flex-col items-center"
-          data-category="{{ item.category|lower }}"
-        >
+          data-category="{{ item.category|lower }}">
           <h4 class="font-semibold text-sm mb-1 text-gray-200">{{ item.name }}</h4>
           <p class="text-xs text-gray-400">{{ item.price }} AED</p>
           <!-- Server selection -->
-          <select
-            id="serverSelect{{ item.id }}"
-            class="w-full mt-2 border border-gray-500 rounded text-xs p-1 bg-neutral-800 text-gray-200"
-          >
+          <select id="serverSelect{{ item.id }}"
+            class="w-full mt-2 border border-gray-500 rounded text-xs p-1 bg-neutral-800 text-gray-200">
             <option value="Hossam">Hossam</option>
             <option value="Ayat">Ayat</option>
             <option value="Faiza">Faiza</option>
             <option value="Sobuj">Sobuj</option>
             <option value="Saiful">Saiful</option>
           </select>
-          <button
-            type="button"
-            onclick="addItem('{{ item.id }}', '{{ item.name }}', '{{ item.price }}')"
-            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 mt-2
+          <button type="button" onclick="addItem('{{ item.id }}', '{{ item.name }}', '{{ item.price }}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 mt-2
                    rounded text-xs w-full transition-colors font-medium
-                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
             Add
           </button>
         </div>
@@ -692,23 +439,15 @@
             <label for="tableNumber" class="block mb-2 font-semibold text-sm">
               Table Number:
             </label>
-            <input
-              type="number"
-              id="tableNumber"
-              class="w-full p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
-              required
-            />
+            <input type="number" id="tableNumber"
+              class="w-full p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200" required />
           </div>
           <div>
             <label for="notes" class="block mb-2 font-semibold text-sm">
               Notes (optional):
             </label>
-            <input
-              type="text"
-              id="notes"
-              class="w-full p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
-              placeholder="Any extra notes..."
-            />
+            <input type="text" id="notes" class="w-full p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
+              placeholder="Any extra notes..." />
           </div>
         </div>
 
@@ -717,11 +456,8 @@
           <label for="serverItemFilter" class="block mb-1 font-semibold text-sm">
             Filter Items by Server:
           </label>
-          <select
-            id="serverItemFilter"
-            class="p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
-            onchange="filterOrderItemsByServer()"
-          >
+          <select id="serverItemFilter" class="p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
+            onchange="filterOrderItemsByServer()">
           </select>
         </div>
 
@@ -756,12 +492,8 @@
           </div>
           <div>
             <label class="block font-semibold mb-1 text-gray-300">Tax (%):</label>
-            <input
-              type="number"
-              id="tax"
-              class="w-full p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
-              value="0"
-            />
+            <input type="number" id="tax" class="w-full p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200"
+              value="0" />
           </div>
           <div>
             <label class="block font-semibold mb-1 text-gray-300">Grand Total:</label>
@@ -771,22 +503,14 @@
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-4">
-          <button
-            type="button"
-            onclick="saveOrder()"
-            class="bg-red-600 hover:bg-red-700 text-white px-6 py-2
+          <button type="button" onclick="saveOrder()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2
                    rounded-md transition-colors text-sm font-semibold
-                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
             Save Order
           </button>
-          <button
-            type="button"
-            onclick="closeOrderModal()"
-            class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2
+          <button type="button" onclick="closeOrderModal()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2
                    rounded-md transition-colors text-sm font-semibold
-                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-          >
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
             Cancel
           </button>
         </div>
@@ -796,11 +520,8 @@
 </div>
 
 <!-- Payment Modal for Partial Payment -->
-<div
-  id="paymentModal"
-  class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center
-         items-center z-50 transition-opacity"
->
+<div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center
+         items-center z-50 transition-opacity">
   <div class="bg-neutral-800 text-gray-100 p-6 rounded shadow-lg w-full max-w-md animate-fadeIn">
     <h2 class="text-lg font-bold mb-4">Make a Payment</h2>
     <div id="paymentModalMessage" class="hidden p-2 mb-4 rounded bg-red-600 text-white"></div>
@@ -815,30 +536,19 @@
     <label for="paymentAmount" class="block mb-2 font-semibold text-sm">
       Payment Amount:
     </label>
-    <input
-      type="number"
-      id="paymentAmount"
+    <input type="number" id="paymentAmount"
       class="w-full p-2 border border-gray-600 rounded bg-neutral-700 text-gray-200 mb-4"
-      placeholder="Enter payment amount"
-    />
+      placeholder="Enter payment amount" />
 
     <div class="flex justify-end gap-4">
-      <button
-        type="button"
-        onclick="submitPayment()"
-        class="bg-red-600 hover:bg-red-700 text-white px-6 py-2
+      <button type="button" onclick="submitPayment()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2
                rounded-md transition-colors text-sm font-semibold
-               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-      >
+               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
         Pay
       </button>
-      <button
-        type="button"
-        onclick="closePaymentModal()"
-        class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2
+      <button type="button" onclick="closePaymentModal()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2
                rounded-md transition-colors text-sm font-semibold
-               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-      >
+               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
         Cancel
       </button>
     </div>
@@ -849,12 +559,20 @@
 
 <!-- Simple fade-in animation for modals -->
 <style>
-@keyframes fadeIn {
-  0%   { opacity: 0; transform: scale(0.95); }
-  100% { opacity: 1; transform: scale(1); }
-}
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out forwards;
-}
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
 </style>
 {% endblock %}
